@@ -1,0 +1,10 @@
+lr3
+p
+*.o
+cat << 'EOF' > .gitignore
+lr3
+p
+*.o
+*.gcno
+*.gcda
+*.gcov
