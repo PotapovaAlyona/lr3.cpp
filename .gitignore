@@ -8,3 +8,6 @@ p
 *.gcno
 *.gcda
 *.gcov
+tests
+benchmark
+coverage/
