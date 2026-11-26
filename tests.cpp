@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <fstream>
 #include <cstdio>
+#include "serializer.h"
 #include "array.h"
 #include "ForwardList.h"
 #include "DoubleList.h"
@@ -332,6 +333,57 @@ TEST(DatabaseTest, CommandsAndFilePersistence) {
     db2.loadFromFile("test_db_full.txt");
     db2.processCommand("PRINT ht1");
     std::remove("test_db_full.txt");
+}
+// 8. Тесты Serializer (текстовый и бинарный форматы)
+TEST(SerializerTest, TextAndBinarySerialization) {
+    DynamicArray arr;
+    arr.setName("arr_ser");
+    arr.addToEnd("alpha");
+    arr.addToEnd("beta");
+
+    Serializer::saveArrayText(arr, "arr_test.txt");
+    DynamicArray arrTxt;
+    Serializer::loadArrayText(arrTxt, "arr_test.txt");
+    EXPECT_EQ(arrTxt.getLength(), 2);
+    EXPECT_EQ(arrTxt.getElement(1), "beta");
+    std::remove("arr_test.txt");
+
+    Serializer::saveArrayBinary(arr, "arr_test.bin");
+    DynamicArray arrBin;
+    Serializer::loadArrayBinary(arrBin, "arr_test.bin");
+    EXPECT_EQ(arrBin.getLength(), 2);
+    EXPECT_EQ(arrBin.getElement(0), "alpha");
+    std::remove("arr_test.bin");
+
+    AVLTree tree;
+    tree.setName("tree_ser");
+    tree.insert(40);
+    tree.insert(20);
+    tree.insert(60);
+
+    Serializer::saveTreeText(tree, "tree_test.txt");
+    AVLTree treeTxt;
+    Serializer::loadTreeText(treeTxt, "tree_test.txt");
+    EXPECT_TRUE(treeTxt.search(20));
+    std::remove("tree_test.txt");
+
+    Serializer::saveTreeBinary(tree, "tree_test.bin");
+    AVLTree treeBin;
+    Serializer::loadTreeBinary(treeBin, "tree_test.bin");
+    EXPECT_TRUE(treeBin.search(60));
+    EXPECT_EQ(treeBin.getCount(), 3);
+    std::remove("tree_test.bin");
+
+    ChainHashTable cht(8);
+    cht.setName("ht_ser");
+    cht.insert("token1");
+    cht.insert("token2");
+    Serializer::saveHashBinary(cht, "ht_test.bin");
+    ChainHashTable chtBin(8);
+    Serializer::loadHashBinary(chtBin, "ht_test.bin");
+    EXPECT_TRUE(chtBin.contains("token1"));
+    EXPECT_TRUE(chtBin.contains("token2"));
+    std::remove("ht_test.bin");
 }
 
 int main(int argc, char** argv) {
